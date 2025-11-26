@@ -1,0 +1,312 @@
+/* Thermometer Visualization Styles */
+
+.thermometer-svg {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    border-radius: 12px;
+    padding: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Thermometer Base Structure */
+.thermometer-bulb {
+    fill: #e2e8f0;
+    stroke: #94a3b8;
+    stroke-width: 2;
+    transition: all var(--transition-normal);
+}
+
+.thermometer-tube {
+    fill: #f1f5f9;
+    stroke: #cbd5e1;
+    stroke-width: 2;
+}
+
+.thermometer-background {
+    fill: #f8fafc;
+    stroke: none;
+}
+
+/* Temperature Fill Animation */
+.thermometer-fill {
+    fill: url(#temperature-gradient);
+    stroke: none;
+    transition: height var(--transition-slow), y var(--transition-slow);
+    transform-origin: bottom;
+}
+
+/* Temperature Gradient Definitions */
+.thermometer-svg defs {
+    /* These will be added dynamically by JavaScript */
+}
+
+/* Temperature Color Classes */
+.temp-cold {
+    fill: var(--temp-cold);
+}
+
+.temp-cool {
+    fill: var(--temp-cool);
+}
+
+.temp-warm {
+    fill: var(--temp-warm);
+}
+
+.temp-hot {
+    fill: var(--temp-hot);
+}
+
+/* Dynamic Temperature Gradients */
+.temperature-gradient-cold {
+    --gradient-start: #0088ff;
+    --gradient-end: #44aaff;
+}
+
+.temperature-gradient-cool {
+    --gradient-start: #44aaff;
+    --gradient-end: #66ccff;
+}
+
+.temperature-gradient-warm {
+    --gradient-start: #ffaa00;
+    --gradient-end: #ffcc44;
+}
+
+.temperature-gradient-hot {
+    --gradient-start: #ff4444;
+    --gradient-end: #ff6666;
+}
+
+/* Temperature Markings */
+.temperature-markings {
+    font-family: var(--font-family-sans);
+}
+
+.temperature-markings line {
+    transition: opacity var(--transition-fast);
+}
+
+.temperature-markings text {
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Thermometer Bulb Animation */
+.thermometer-bulb.active {
+    animation: bulb-pulse 2s infinite ease-in-out;
+}
+
+@keyframes bulb-pulse {
+    0%, 100% {
+        fill: #e2e8f0;
+        transform: scale(1);
+    }
+    50% {
+        fill: #fef3c7;
+        transform: scale(1.05);
+    }
+}
+
+/* Temperature Fill Effects */
+.thermometer-fill.animating {
+    animation: fill-shimmer 3s infinite linear;
+}
+
+@keyframes fill-shimmer {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+/* Temperature Text Display */
+#temperature-text {
+    font-family: var(--font-family-mono);
+    font-weight: 700;
+    font-size: 12px;
+    fill: var(--text-primary);
+    text-anchor: start;
+    dominant-baseline: middle;
+    transition: fill var(--transition-fast);
+}
+
+/* Responsive Thermometer */
+@media (max-width: 768px) {
+    .thermometer-svg {
+        width: 100px;
+        height: 300px;
+    }
+    
+    .temperature-markings text {
+        font-size: 7px;
+    }
+    
+    #temperature-text {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .thermometer-svg {
+        width: 80px;
+        height: 240px;
+    }
+    
+    .temperature-markings text {
+        font-size: 6px;
+    }
+    
+    #temperature-text {
+        font-size: 9px;
+    }
+}
+
+/* Temperature Threshold Indicators */
+.thermometer-container::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 4px;
+    background: linear-gradient(
+        to right,
+        var(--temp-cold) 0%,
+        var(--temp-cool) 33%,
+        var(--temp-warm) 66%,
+        var(--temp-hot) 100%
+    );
+    border-radius: 2px;
+    opacity: 0.3;
+    transition: opacity var(--transition-normal);
+}
+
+.thermometer-container:hover::before {
+    opacity: 0.6;
+}
+
+/* Thermometer Container Positioning */
+.thermometer-container {
+    position: relative;
+    display: inline-block;
+    padding: 10px;
+}
+
+/* Temperature Alert Styles */
+.thermometer-container.temp-alert-hot {
+    animation: alert-hot 1s ease-in-out;
+}
+
+.thermometer-container.temp-alert-cool {
+    animation: alert-cool 1s ease-in-out;
+}
+
+@keyframes alert-hot {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 68, 68, 0.5)); }
+}
+
+@keyframes alert-cool {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(68, 170, 255, 0.5)); }
+}
+
+/* High Temperature Warning */
+.thermometer-container.temp-critical {
+    animation: critical-warning 0.5s infinite alternate ease-in-out;
+}
+
+@keyframes critical-warning {
+    from { filter: drop-shadow(0 0 10px rgba(255, 68, 68, 0.8)); }
+    to { filter: drop-shadow(0 0 20px rgba(255, 68, 68, 0.4)); }
+}
+
+/* Temperature Transition Classes */
+.thermometer-fill.temp-rising {
+    animation: temp-rising 0.5s ease-out;
+}
+
+.thermometer-fill.temp-falling {
+    animation: temp-falling 0.5s ease-out;
+}
+
+@keyframes temp-rising {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; transform: scaleY(1.02); }
+    100% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes temp-falling {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; transform: scaleY(0.98); }
+    100% { opacity: 1; transform: scaleY(1); }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .thermometer-svg,
+    .thermometer-fill,
+    .thermometer-bulb,
+    #temperature-text {
+        transition: none;
+        animation: none;
+    }
+    
+    .thermometer-container::before {
+        transition: none;
+    }
+    
+    .thermometer-container.temp-alert-hot,
+    .thermometer-container.temp-alert-cool,
+    .thermometer-container.temp-critical {
+        animation: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .thermometer-tube {
+        stroke-width: 3;
+        stroke: #000;
+    }
+    
+    .thermometer-bulb {
+        stroke-width: 3;
+        stroke: #000;
+    }
+    
+    .temperature-markings text {
+        text-shadow: none;
+        font-weight: 700;
+    }
+    
+    #temperature-text {
+        font-weight: 900;
+    }
+}
+
+/* Dark Mode Support (if implemented) */
+@media (prefers-color-scheme: dark) {
+    .thermometer-tube {
+        fill: #374151;
+        stroke: #6b7280;
+    }
+    
+    .thermometer-background {
+        fill: #4b5563;
+    }
+    
+    .thermometer-bulb {
+        fill: #4b5563;
+        stroke: #9ca3af;
+    }
+    
+    #temperature-text {
+        fill: #f9fafb;
+    }
+    
+    .temperature-markings text {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+}

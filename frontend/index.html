@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Room Temperature Monitor</title>
+    <meta name="description" content="Real-time conversation temperature monitoring using AI">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/thermometer.css">
+    <link rel="stylesheet" href="styles/components.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="assets/icons/thermometer.svg" type="image/svg+xml">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">
+                🌡️ Room Temperature Monitor
+            </h1>
+            <p class="app-subtitle">
+                AI-powered conversation heat detection
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Status Section -->
+            <section class="status-section">
+                <div id="status-indicator" class="status-indicator">
+                    <div class="status-light"></div>
+                    <span class="status-text">Ready to start</span>
+                </div>
+                <div id="connection-status" class="connection-status">
+                    <span class="connection-text">Checking backend...</span>
+                </div>
+            </section>
+
+            <!-- Thermometer Section -->
+            <section class="thermometer-section">
+                <div class="temperature-graph-container">
+                    <canvas id="temperature-graph" class="temperature-graph"></canvas>
+                </div>
+                <div class="thermometer-container">
+                    <svg id="thermometer-svg" class="thermometer-svg" viewBox="0 0 100 300" width="120" height="360">
+                        <!-- Define gradients -->
+                        <defs>
+                            <linearGradient id="temp-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" style="stop-color:#0088ff;stop-opacity:1" />
+                                <stop offset="33%" style="stop-color:#44aaff;stop-opacity:1" />
+                                <stop offset="66%" style="stop-color:#ffaa00;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ff4444;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Thermometer outer tube -->
+                        <rect x="40" y="20" width="20" height="230" fill="#f0f0f0" stroke="#ccc" stroke-width="2" rx="10" />
+                        
+                        <!-- Thermometer inner background -->
+                        <rect x="42" y="22" width="16" height="226" fill="#fff" rx="8" />
+                        
+                        <!-- Thermometer bulb -->
+                        <circle cx="50" cy="260" r="12" fill="#f0f0f0" stroke="#ccc" stroke-width="2" />
+                        
+                        <!-- Temperature fill (starts from bottom) -->
+                        <rect id="temperature-fill" x="44" y="248" width="12" height="0" fill="url(#temp-gradient)" rx="6" />
+                        
+                        <!-- Bulb fill -->
+                        <circle id="bulb-fill" cx="50" cy="260" r="10" fill="#0088ff" />
+                        
+                        <!-- Temperature markings -->
+                        <g class="temperature-markings">
+                            <!-- Hot (80-100) -->
+                            <line x1="62" y1="40" x2="70" y2="40" stroke="#ff4444" stroke-width="2"/>
+                            <text x="72" y="44" fill="#ff4444" font-size="10" text-anchor="start">Hot</text>
+                            
+                            <!-- Warm (60-80) -->
+                            <line x1="62" y1="80" x2="70" y2="80" stroke="#ffaa00" stroke-width="2"/>
+                            <text x="72" y="84" fill="#ffaa00" font-size="10" text-anchor="start">Warm</text>
+                            
+                            <!-- Cool (40-60) -->
+                            <line x1="62" y1="140" x2="70" y2="140" stroke="#44aaff" stroke-width="2"/>
+                            <text x="72" y="144" fill="#44aaff" font-size="10" text-anchor="start">Cool</text>
+                            
+                            <!-- Cold (0-40) -->
+                            <line x1="62" y1="200" x2="70" y2="200" stroke="#0088ff" stroke-width="2"/>
+                            <text x="72" y="204" fill="#0088ff" font-size="10" text-anchor="start">Cold</text>
+                        </g>
+                        
+                        <!-- Current temperature display -->
+                        <text id="temperature-text" x="50" y="290" fill="#333" font-size="12" text-anchor="middle" font-weight="bold">--°</text>
+                    </svg>
+                </div>
+                
+                <!-- Temperature Info -->
+                <div class="temperature-info">
+                    <div class="current-temp">
+                        <span class="temp-label">Current:</span>
+                        <span id="current-temperature" class="temp-value">--</span>
+                    </div>
+                    <div class="average-temp">
+                        <span class="temp-label">15min Avg:</span>
+                        <span id="average-temperature" class="temp-value">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="main-controls">
+                    <button id="start-stop-btn" class="primary-button">
+                        <span class="button-icon">🎙️</span>
+                        <span class="button-text">Start Monitoring</span>
+                    </button>
+                    
+                    <button id="reset-btn" class="secondary-button">
+                        <span class="button-icon">🔄</span>
+                        <span class="button-text">Reset</span>
+                    </button>
+                </div>
+
+                <div class="settings-toggle">
+                    <button id="settings-btn" class="settings-button">
+                        <span class="button-icon">⚙️</span>
+                        <span class="button-text">Settings</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Settings Panel -->
+            <section id="settings-panel" class="settings-panel hidden">
+                <div class="settings-content">
+                    <h3>Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label for="recording-interval">Recording Interval</label>
+                        <div class="slider-container">
+                            <input type="range" id="recording-interval" min="10" max="60" value="20" step="5">
+                            <span id="interval-display" class="slider-value">20 seconds</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="temperature-sensitivity">Temperature Sensitivity</label>
+                        <div class="slider-container">
+                            <input type="range" id="temperature-sensitivity" min="1" max="10" value="5" step="1">
+                            <span id="sensitivity-display" class="slider-value">Normal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="audio-feedback">
+                            Audio feedback
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="debug-mode">
+                            Debug mode
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Debug Panel -->
+            <section id="debug-panel" class="debug-panel hidden">
+                <div class="debug-content">
+                    <h3>Debug Information</h3>
+                    <div id="debug-info">
+                        <div class="debug-item">
+                            <span class="debug-label">Recording State:</span>
+                            <span id="debug-recording-state">Idle</span>
+                        </div>
+                        <div class="debug-item">
+                            <span class="debug-label">Last API Call:</span>
+                            <span id="debug-last-api">None</span>
+                        </div>
+                        <div class="debug-item">
+                            <span class="debug-label">Temperature History:</span>
+                            <span id="debug-temp-history">0 readings</span>
+                        </div>
+                        <div class="debug-item">
+                            <span class="debug-label">Audio Buffer:</span>
+                            <span id="debug-audio-buffer">0 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>🤖 Powered by AI • Privacy-first design • No data stored</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="scripts/audio-recorder.js"></script>
+    <script src="scripts/temperature-manager.js"></script>
+    <script src="scripts/thermometer-display.js"></script>
+    <script src="scripts/temperature-graph.js"></script>
+    <script src="scripts/settings-manager.js"></script>
+    <script src="scripts/status-indicator.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
