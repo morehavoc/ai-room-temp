@@ -19,21 +19,21 @@ if grep -q "your_openai_api_key_here" .env 2>/dev/null; then
 fi
 
 echo "🏗️  Building single container..."
-docker-compose -f docker-compose.single.yml build
+docker build -t ai-room-temp .
 
 if [[ $? -eq 0 ]]; then
     echo "✅ Build successful!"
     echo ""
     echo "To run the container:"
-    echo "  docker-compose -f docker-compose.single.yml up"
-    echo ""
-    echo "Or to run in background:"
-    echo "  docker-compose -f docker-compose.single.yml up -d"
+    echo "  docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp"
     echo ""
     echo "The application will be available at: http://localhost:8080"
     echo ""
+    echo "To check logs:"
+    echo "  docker logs -f ai-room-temp"
+    echo ""
     echo "To stop:"
-    echo "  docker-compose -f docker-compose.single.yml down"
+    echo "  docker stop ai-room-temp && docker rm ai-room-temp"
 else
     echo "❌ Build failed!"
     exit 1

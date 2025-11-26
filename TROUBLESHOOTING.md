@@ -129,16 +129,17 @@ GPT_MODEL = 'gpt-3.5-turbo'  # For analysis
 
 ## 🐳 Docker Issues
 
-### Error: `docker-compose: command not found`
+### Docker Container Issues
 
 **Solutions**:
 ```bash
-# Install Docker Compose v2
-# OR use docker compose (no dash)
-docker compose up
+# Use direct Docker commands instead
+docker build -t ai-room-temp .
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 
-# OR install docker-compose separately
-pip install docker-compose
+# Check container status
+docker ps
+docker logs ai-room-temp
 ```
 
 ### Error: `bind: address already in use`
@@ -154,7 +155,8 @@ lsof -i :8080
 # Kill process
 kill -9 <PID>
 
-# OR change ports in docker-compose.yml
+# OR change port in docker run command
+# docker run -d -p 8081:80 --env-file .env --name ai-room-temp ai-room-temp
 ```
 
 ### Error: Docker build fails
@@ -162,7 +164,7 @@ kill -9 <PID>
 **Solutions**:
 1. **Check .env file exists**: `cp .env.example .env`
 2. **Set OpenAI API key** in .env
-3. **Clean build**: `docker-compose down && docker-compose build --no-cache`
+3. **Clean build**: `docker stop ai-room-temp && docker rm ai-room-temp && docker build --no-cache -t ai-room-temp .`
 
 ## 🔧 Development Issues
 

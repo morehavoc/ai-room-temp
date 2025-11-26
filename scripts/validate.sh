@@ -51,7 +51,7 @@ echo "📁 Checking project structure..."
 
 # Root files
 check_file "README.md exists" "README.md"
-check_file "docker-compose.yml exists" "docker-compose.yml"
+check_file "Dockerfile exists" "Dockerfile"
 check_file ".env.example exists" ".env.example"
 check_file ".gitignore exists" ".gitignore"
 check_file "DEPLOYMENT.md exists" "DEPLOYMENT.md"
@@ -146,11 +146,12 @@ if [[ -f "backend/requirements.txt" ]]; then
     check "Flask-CORS in requirements" "grep -q 'flask-cors' backend/requirements.txt"
 fi
 
-# Check docker-compose structure
-if [[ -f "docker-compose.yml" ]]; then
-    check "Docker compose has backend service" "grep -q 'backend:' docker-compose.yml"
-    check "Docker compose has frontend service" "grep -q 'frontend:' docker-compose.yml"
-    check "Docker compose exposes ports" "grep -q 'ports:' docker-compose.yml"
+# Check Docker single container structure
+if [[ -f "Dockerfile" ]]; then
+    check "Dockerfile has FROM python" "grep -q 'FROM python' Dockerfile"
+    check "Dockerfile exposes port" "grep -q 'EXPOSE' Dockerfile"
+    check "Docker nginx config exists" "test -f docker/nginx.conf"
+    check "Docker supervisor config exists" "test -f docker/supervisord.conf"
 fi
 
 # Check environment examples

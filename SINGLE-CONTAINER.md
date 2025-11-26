@@ -18,8 +18,8 @@ cp .env.example .env
 # Edit .env with your OpenAI API key
 
 # 2. Build and run
-./scripts/build-single.sh
-docker-compose -f docker-compose.single.yml up -d
+docker build -t ai-room-temp .
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 
 # 3. Test deployment
 ./scripts/test-single-container.sh
@@ -94,19 +94,19 @@ CMD ["/usr/bin/supervisord"]
 ### Build and Start
 ```bash
 # Build image
-docker-compose -f docker-compose.single.yml build
+docker build -t ai-room-temp .
 
 # Start container
-docker-compose -f docker-compose.single.yml up -d
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 ```
 
 ### Monitoring
 ```bash
 # View logs
-docker-compose -f docker-compose.single.yml logs -f
+docker logs -f ai-room-temp
 
 # Check status
-docker-compose -f docker-compose.single.yml ps
+docker ps
 
 # Test endpoints
 ./scripts/test-single-container.sh
@@ -114,11 +114,11 @@ docker-compose -f docker-compose.single.yml ps
 
 ### Stopping
 ```bash
-# Stop and remove
-docker-compose -f docker-compose.single.yml down
+# Stop and remove container
+docker stop ai-room-temp && docker rm ai-room-temp
 
-# Stop and remove volumes
-docker-compose -f docker-compose.single.yml down -v
+# Or stop all containers
+docker stop $(docker ps -q)
 ```
 
 ## Troubleshooting
@@ -126,7 +126,7 @@ docker-compose -f docker-compose.single.yml down -v
 ### Container Won't Start
 ```bash
 # Check logs for errors
-docker-compose -f docker-compose.single.yml logs
+docker logs ai-room-temp
 
 # Common issues:
 # - Missing .env file
@@ -140,7 +140,7 @@ docker-compose -f docker-compose.single.yml logs
 docker exec -it <container_name> supervisorctl status nginx
 
 # Check nginx logs
-docker-compose -f docker-compose.single.yml logs | grep nginx
+docker logs ai-room-temp | grep nginx
 ```
 
 ### Backend Not Responding
@@ -186,12 +186,13 @@ server_tokens off;
 
 ### Environment-Specific Configs
 ```bash
-# Production: docker-compose.prod.yml
-services:
-  app:
-    environment:
-      - FLASK_DEBUG=false
-    deploy:
+# Production: Create .env.production file
+FLASK_DEBUG=false
+FLASK_ENV=production
+OPENAI_API_KEY=your_production_key_here
+
+# Then use it when running:
+docker run -d -p 8080:80 --env-file .env.production --name ai-room-temp ai-room-temp
       resources:
         limits:
           memory: 4G

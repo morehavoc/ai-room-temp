@@ -60,7 +60,7 @@ else
 fi
 
 # Check if we're in the project directory
-if [[ ! -f "docker-compose.yml" ]] || [[ ! -d "backend" ]] || [[ ! -d "frontend" ]]; then
+if [[ ! -f "Dockerfile" ]] || [[ ! -d "backend" ]] || [[ ! -d "frontend" ]]; then
     echo "❌ Please run this script from the project root directory"
     exit 1
 fi
@@ -130,12 +130,9 @@ echo "🐳 Checking Docker (optional)..."
 
 if command_exists docker; then
     echo "✅ Docker found"
-    if command_exists docker-compose; then
-        echo "✅ Docker Compose found"
-        echo "You can use 'docker-compose up' to run the full stack"
-    else
-        echo "⚠️  Docker Compose not found. You can still use Docker manually"
-    fi
+    echo "You can use the single container deployment:"
+    echo "  docker build -t ai-room-temp ."
+    echo "  docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp"
 else
     echo "ℹ️  Docker not found. You can still run the application manually"
 fi
@@ -278,7 +275,8 @@ echo "   ./scripts/start-backend.sh    # Terminal 1"
 echo "   ./scripts/start-frontend.sh   # Terminal 2"
 echo ""
 echo "Option C - Docker (if available):"
-echo "   docker-compose up"
+echo "   docker build -t ai-room-temp ."
+echo "   docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp"
 echo ""
 echo "Then open http://localhost:8080 in your browser!"
 echo ""

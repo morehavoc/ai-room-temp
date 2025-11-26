@@ -58,13 +58,8 @@ python -m http.server 8080
 ### Option C: Docker Single Container (Recommended)
 ```bash
 # Build and run everything in one container
-./scripts/build-single.sh
-docker-compose -f docker-compose.single.yml up -d
-```
-
-### Option D: Docker Multi-Container (Advanced)
-```bash
-docker-compose up
+docker build -t ai-room-temp .
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 ```
 
 ## 4. Open the Application

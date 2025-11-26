@@ -4,9 +4,9 @@ echo "🧪 Testing Single Container Deployment"
 echo "======================================"
 
 # Check if container is running
-if ! docker-compose -f docker-compose.single.yml ps | grep -q "Up"; then
+if ! docker ps | grep -q "ai-room-temp"; then
     echo "❌ Container is not running. Start it with:"
-    echo "   docker-compose -f docker-compose.single.yml up -d"
+    echo "   docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp"
     exit 1
 fi
 

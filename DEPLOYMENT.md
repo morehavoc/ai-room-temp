@@ -41,8 +41,8 @@ cp .env.example .env
 # Edit .env with your OpenAI API key
 
 # Build and run single container
-./scripts/build-single.sh
-docker-compose -f docker-compose.single.yml up -d
+docker build -t ai-room-temp .
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 
 # Access application at http://localhost:8080
 ```
@@ -58,14 +58,14 @@ For development or when you need separate frontend/backend scaling:
 cp .env.example .env
 # Edit .env with your OpenAI API key
 
-# Start services
-docker-compose up -d
+# Start container
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 
 # View logs
-docker-compose logs -f
+docker logs -f ai-room-temp
 
-# Stop services
-docker-compose down
+# Stop container
+docker stop ai-room-temp && docker rm ai-room-temp
 ```
 
 ### Production Docker Deployment
@@ -83,9 +83,9 @@ docker-compose down
    MAX_FILE_SIZE=25
    ```
 
-3. **Use production compose file:**
+3. **Deploy with production environment:**
    ```bash
-   docker-compose -f docker-compose.prod.yml up -d
+   docker run -d -p 80:80 --env-file .env.production --name ai-room-temp-prod ai-room-temp
    ```
 
 ## Cloud Deployment
@@ -217,7 +217,7 @@ Content-Security-Policy: default-src 'self';
 env | grep OPENAI_API_KEY
 
 # Check logs
-docker-compose logs backend
+docker logs ai-room-temp
 
 # Test OpenAI connection
 curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
