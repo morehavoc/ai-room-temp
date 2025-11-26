@@ -79,11 +79,11 @@ sudo chmod 755 /tmp/audio_uploads
 **Problem**: Frontend can't reach backend API.
 
 **Solutions**:
-1. **Check backend is running**: Should see "Starting AI Room Temperature server on port 5000"
-2. **Test backend directly**: Open http://localhost:5000/health
+1. **Check backend is running**: Should see "Starting AI Room Temperature server on port 5001"
+2. **Test backend directly**: Open http://localhost:5001/health
 3. **Check API URL**: In browser dev console, verify frontend is calling correct URL
 4. **CORS issues**: Make sure CORS_ORIGINS in .env includes your frontend URL
-5. **Firewall**: Ensure ports 5000 and 8080 are accessible
+5. **Firewall**: Ensure ports 5001 and 8080 are accessible
 
 ### Error: Page refresh loses temperature data
 
@@ -144,12 +144,12 @@ docker logs ai-room-temp
 
 ### Error: `bind: address already in use`
 
-**Problem**: Ports 5000 or 8080 already in use.
+**Problem**: Ports 5001 or 8080 already in use.
 
 **Solutions**:
 ```bash
 # Find process using port
-lsof -i :5000
+lsof -i :5001
 lsof -i :8080
 
 # Kill process
@@ -226,7 +226,7 @@ curl -H "Authorization: Bearer your-api-key" https://api.openai.com/v1/models
 ### Quick Fixes Checklist
 - [ ] OpenAI API key is set correctly in .env
 - [ ] Backend dependencies installed: `pip install -r requirements.txt`
-- [ ] Backend is running on port 5000
+- [ ] Backend is running on port 5001
 - [ ] Frontend is accessible on port 8080
 - [ ] Microphone permissions granted
 - [ ] Using supported browser

@@ -1,282 +1,267 @@
 # Deployment Guide
 
-This guide covers different deployment options for the AI Room Temperature Monitor.
+Complete deployment guide for the AI Room Temperature Monitor using single container Docker deployment.
 
-## Quick Start (Development)
+## Prerequisites
 
-1. **Clone and setup:**
-   ```bash
-   git clone <repository>
-   cd ai-room-temp
-   ./scripts/setup.sh
-   ```
+- Docker installed
+- OpenAI API key
+- Modern web browser with microphone access
 
-2. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your OpenAI API key
-   ```
+## Quick Deployment
 
-3. **Start development servers:**
-   ```bash
-   ./scripts/dev.sh
-   # OR manually:
-   ./scripts/start-backend.sh    # Terminal 1
-   ./scripts/start-frontend.sh   # Terminal 2
-   ```
-
-4. **Open application:**
-   - Frontend: http://localhost:8080
-   - Backend: http://localhost:5000
-
-## Docker Deployment
-
-### Single Container (Recommended)
-
-The simplest deployment uses one container with both frontend and backend:
+### 1. Setup Environment
 
 ```bash
-# Copy environment file
+# Clone repository
+git clone <repository-url>
+cd ai-room-temp
+
+# Create environment file
 cp .env.example .env
-# Edit .env with your OpenAI API key
-
-# Build and run single container
-docker build -t ai-room-temp .
-docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
-
-# Access application at http://localhost:8080
+# Edit .env and add your OpenAI API key
 ```
 
-### Multi-Container Setup
-
-For development or when you need separate frontend/backend scaling:
-
-#### Development with Docker
+### 2. Build and Run
 
 ```bash
-# Copy environment file
-cp .env.example .env
-# Edit .env with your OpenAI API key
+# Build Docker image
+docker build -t ai-room-temp .
 
-# Start container
+# Run container
 docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 
+# Access at http://localhost:8080
+```
+
+### 3. Management Commands
+
+```bash
 # View logs
 docker logs -f ai-room-temp
 
-# Stop container
+# Stop and remove
 docker stop ai-room-temp && docker rm ai-room-temp
+
+# Restart
+docker restart ai-room-temp
+
+# Update (rebuild and redeploy)
+docker stop ai-room-temp && docker rm ai-room-temp
+docker build -t ai-room-temp .
+docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
 ```
 
-### Production Docker Deployment
+## Production Deployment
 
-1. **Create production environment file:**
-   ```bash
-   cp .env.example .env.prod
-   ```
+### Environment Configuration
 
-2. **Configure for production:**
-   ```env
-   OPENAI_API_KEY=your_production_api_key
-   FLASK_DEBUG=false
-   CORS_ORIGINS=https://yourdomain.com
-   MAX_FILE_SIZE=25
-   ```
+Create production environment file:
 
-3. **Deploy with production environment:**
-   ```bash
-   docker run -d -p 80:80 --env-file .env.production --name ai-room-temp-prod ai-room-temp
-   ```
+```bash
+cp .env.example .env.production
+```
+
+Configure production values:
+
+```env
+OPENAI_API_KEY=your_production_api_key
+FLASK_DEBUG=false
+FLASK_ENV=production
+MAX_FILE_SIZE=25
+```
+
+### Production Deployment
+
+```bash
+# Use production port 80
+docker run -d -p 80:80 --env-file .env.production --name ai-room-temp-prod ai-room-temp
+
+# Or use custom port
+docker run -d -p 8080:80 --env-file .env.production --name ai-room-temp-prod ai-room-temp
+```
+
+### SSL/HTTPS (Required for Microphone)
+
+For production, you **must** use HTTPS for microphone access. Use a reverse proxy:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name your-domain.com;
+    
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
 
 ## Cloud Deployment
 
-### Heroku
+### Docker-Compatible Platforms
 
-1. **Backend deployment:**
-   ```bash
-   cd backend
-   # Create Heroku app
-   heroku create your-app-name-backend
-   
-   # Set environment variables
-   heroku config:set OPENAI_API_KEY=your_key
-   heroku config:set FLASK_DEBUG=false
-   
-   # Deploy
-   git add .
-   git commit -m "Deploy backend"
-   git push heroku main
-   ```
+The single container can be deployed on any Docker-compatible platform:
 
-2. **Frontend deployment (Netlify/Vercel):**
-   - Upload `frontend/` directory to static hosting
-   - Configure frontend to use your backend URL
-   - Ensure HTTPS for microphone access
+- **DigitalOcean App Platform**
+- **Google Cloud Run**
+- **AWS Fargate**
+- **Azure Container Instances**
+- **Railway**
+- **Render**
+- **Fly.io**
 
-### AWS/Google Cloud/Azure
+### Example: Railway Deployment
 
-#### Backend (Container Service)
+1. Connect your GitHub repository
+2. Add environment variables:
+   - `OPENAI_API_KEY`
+   - `FLASK_DEBUG=false`
+3. Railway will automatically build and deploy
 
-1. **Build and push image:**
-   ```bash
-   # AWS ECR example
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
-   
-   docker build -t room-temp-backend ./backend
-   docker tag room-temp-backend:latest 123456789.dkr.ecr.us-east-1.amazonaws.com/room-temp-backend:latest
-   docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/room-temp-backend:latest
-   ```
+### Example: Google Cloud Run
 
-2. **Deploy to container service:**
-   - AWS ECS/Fargate
-   - Google Cloud Run
-   - Azure Container Instances
+```bash
+# Build and push to registry
+docker build -t gcr.io/your-project/ai-room-temp .
+docker push gcr.io/your-project/ai-room-temp
 
-3. **Set environment variables:**
-   ```
-   OPENAI_API_KEY=your_key
-   PORT=5000
-   CORS_ORIGINS=https://your-frontend-domain.com
-   ```
-
-#### Frontend (Static Hosting)
-
-1. **Deploy to static hosting:**
-   - AWS S3 + CloudFront
-   - Google Cloud Storage
-   - Azure Static Web Apps
-   - Netlify
-   - Vercel
-
-2. **Update API URL:**
-   ```javascript
-   // frontend/scripts/app.js
-   this.API_BASE_URL = 'https://your-backend-url.com';
-   ```
-
-## Security Considerations
-
-### HTTPS Requirements
-- **Critical:** Microphone access requires HTTPS in production
-- Use SSL certificates (Let's Encrypt, CloudFlare, etc.)
-- Configure proper CORS headers
-
-### API Security
-- Keep OpenAI API key secure (environment variables only)
-- Implement rate limiting if needed
-- Consider API authentication for production use
-
-### Content Security Policy
-```
-Content-Security-Policy: default-src 'self'; 
-  script-src 'self' 'unsafe-inline'; 
-  style-src 'self' 'unsafe-inline'; 
-  connect-src 'self' https://your-backend.com; 
-  media-src 'self' blob:;
+# Deploy
+gcloud run deploy ai-room-temp \
+  --image gcr.io/your-project/ai-room-temp \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars OPENAI_API_KEY=your_key,FLASK_DEBUG=false
 ```
 
-## Monitoring and Logging
+## Development Setup
 
-### Backend Monitoring
-- Monitor API response times
-- Track OpenAI API usage and costs
-- Set up error alerting
-- Log audio processing metrics
+For development, you can also run components separately:
 
-### Frontend Monitoring
-- Browser console errors
-- Microphone permission failures
-- API connection issues
+```bash
+# Terminal 1: Backend
+cd backend
+source venv/bin/activate
+python app.py
 
-### Recommended Tools
-- **Logging:** Sentry, LogRocket
-- **Monitoring:** DataDog, New Relic
-- **Uptime:** Pingdom, UptimeRobot
+# Terminal 2: Frontend  
+cd frontend
+python -m http.server 8080
+```
 
-## Performance Optimization
+## Monitoring
 
-### Backend
-- Use production WSGI server (Gunicorn)
-- Implement connection pooling
-- Add Redis for caching (if needed)
-- Scale horizontally behind load balancer
+### Health Checks
 
-### Frontend
-- Enable gzip compression
-- Use CDN for static assets
-- Implement service worker for offline capability
-- Optimize audio chunk sizes
+The application provides health endpoints:
+
+- `http://localhost:8080/health` - Backend health
+- `http://localhost:8080/api/health` - API routing health
+
+### Logs
+
+```bash
+# View all logs
+docker logs ai-room-temp
+
+# Follow logs in real-time
+docker logs -f ai-room-temp
+
+# View only nginx logs
+docker logs ai-room-temp | grep nginx
+
+# View only Flask logs
+docker logs ai-room-temp | grep flask
+```
+
+## Security
+
+### Required for Production
+
+1. **HTTPS**: Required for microphone access
+2. **API Key Security**: Store in environment variables only
+3. **CORS**: Configure allowed origins
+4. **Content Security Policy**: Included in nginx config
+
+### Optional Enhancements
+
+- Rate limiting
+- User authentication
+- Request logging
+- IP filtering
 
 ## Troubleshooting
 
-### Common Issues
+### Container Won't Start
 
-**Backend not starting:**
 ```bash
-# Check environment variables
-env | grep OPENAI_API_KEY
-
 # Check logs
 docker logs ai-room-temp
 
-# Test OpenAI connection
-curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
+# Common issues:
+# - Missing .env file
+# - Invalid OpenAI API key  
+# - Port 8080 already in use
 ```
 
-**Frontend can't connect:**
-- Check CORS configuration
-- Verify API URL in frontend code
-- Test backend health endpoint: `/health`
+### Microphone Not Working
 
-**Microphone not working:**
 - Ensure HTTPS in production
 - Check browser permissions
-- Test on different browsers
+- Try different browsers
+- Verify microphone hardware
 
-**High OpenAI costs:**
-- Monitor audio chunk sizes
-- Implement user session limits
-- Add request queuing/throttling
+### API Errors
 
-## Scaling
+```bash
+# Test OpenAI connection
+curl -H "Authorization: Bearer $OPENAI_API_KEY" \
+  https://api.openai.com/v1/models
 
-### Horizontal Scaling
-- Deploy multiple backend instances
-- Use load balancer (nginx, HAProxy, cloud LB)
-- Share session state if needed
+# Check backend health
+curl http://localhost:8080/health
+```
 
-### Database (if added)
-- PostgreSQL for user data
-- Redis for session storage
-- Time-series DB for temperature history
+### High OpenAI Costs
 
-### CDN and Caching
-- Static assets via CDN
-- API response caching
-- Audio file temporary storage
+- Monitor usage in OpenAI dashboard
+- Adjust recording interval in settings
+- Implement session time limits
 
-## Backup and Recovery
+## Performance
 
-### Data Backup
-- User settings (localStorage)
-- Temperature history (if persisted)
-- Application configuration
+### Resource Usage
 
-### Disaster Recovery
-- Automated deployments
-- Infrastructure as code
-- Database backups (if applicable)
+The single container typically uses:
+- **CPU**: 0.5-1 core during processing
+- **Memory**: 512MB-1GB 
+- **Storage**: 100MB (no persistent data)
 
-## Cost Optimization
+### Scaling
 
-### OpenAI API Costs
-- Monitor usage with alerts
-- Implement user limits
-- Use shorter audio chunks
-- Cache similar requests (if applicable)
+For high usage:
 
-### Infrastructure Costs
-- Use spot instances for development
-- Implement auto-scaling
-- Monitor resource usage
-- Use free tiers where possible
+```bash
+# Run multiple instances on different ports
+docker run -d -p 8081:80 --env-file .env --name ai-room-temp-1 ai-room-temp
+docker run -d -p 8082:80 --env-file .env --name ai-room-temp-2 ai-room-temp
+
+# Use nginx load balancer
+upstream app {
+    server localhost:8081;
+    server localhost:8082;
+}
+```
+
+## Backup
+
+The application is stateless - no data backup needed. Only preserve:
+
+- `.env` configuration files
+- Docker image or source code
+- SSL certificates (if used)

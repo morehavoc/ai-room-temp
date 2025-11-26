@@ -38,32 +38,40 @@ LocalStorage ← Calculate Weighted Average ← Apply Time Decay ← Store Tempe
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Docker or Python 3.8+
 - OpenAI API key
 - Modern web browser with microphone access
 
-### Setup
+### Setup (Docker - Recommended)
 
-1. **Clone and setup backend:**
+1. **Configure environment:**
    ```bash
-   cd backend
-   pip install -r requirements.txt
-   export OPENAI_API_KEY=your_api_key_here
-   python app.py
+   cp .env.example .env
+   # Edit .env and add your OpenAI API key
    ```
 
-2. **Start frontend:**
+2. **Build and run:**
    ```bash
-   cd frontend
-   # Serve via any static file server
-   python -m http.server 8080
-   # Or use Node.js serve, nginx, etc.
+   docker build -t ai-room-temp .
+   docker run -d -p 8080:80 --env-file .env --name ai-room-temp ai-room-temp
    ```
 
-3. **Open application:**
+3. **Access application:**
    - Navigate to `http://localhost:8080`
    - Grant microphone permissions
    - Start monitoring conversation temperature!
+
+### Alternative: Development Setup
+
+For development or if Docker is not available:
+```bash
+# Backend
+cd backend && pip install -r requirements.txt
+export OPENAI_API_KEY=your_api_key_here && python app.py
+
+# Frontend (new terminal)
+cd frontend && python -m http.server 8080
+```
 
 ## Configuration
 

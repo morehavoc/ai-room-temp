@@ -38,7 +38,7 @@ The frontend is a vanilla JavaScript web application that provides real-time con
 
 3. **Grant permissions:**
    - Allow microphone access when prompted
-   - Ensure backend server is running at `http://localhost:5000`
+   - Ensure backend server is running at `http://localhost:5001`
 
 ## Project Structure
 
@@ -65,7 +65,7 @@ frontend/
 ## Configuration
 
 ### Backend API Endpoint
-The frontend is configured to connect to the backend at `http://localhost:5000` by default. To change this, modify the `API_BASE_URL` constant in `scripts/app.js`.
+The frontend is configured to connect to the backend at `http://localhost:5001` by default. To change this, modify the `API_BASE_URL` constant in `scripts/app.js`.
 
 ### Recording Settings
 Users can configure:
@@ -184,9 +184,9 @@ window.APP_CONFIG = {
 - Test microphone in other applications
 
 **No Temperature Updates:**
-- Verify backend is running
+- Verify backend is running on port 5001
 - Check browser console for errors
-- Test backend endpoint directly
+- Test backend endpoint directly at http://localhost:5001/health
 
 **Page Refresh Loses Data:**
 - Check if localStorage is enabled
@@ -259,7 +259,7 @@ Adjust `scripts/audio-recorder.js` for:
 Recommended CSP headers:
 ```
 Content-Security-Policy: default-src 'self'; 
-  connect-src 'self' http://localhost:5000; 
+  connect-src 'self' http://localhost:5001; 
   media-src 'self' blob:;
   style-src 'self' 'unsafe-inline'
 ```

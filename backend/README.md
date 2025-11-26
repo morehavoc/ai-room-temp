@@ -35,7 +35,7 @@ The backend is a Python Flask application that provides a single endpoint for an
    python app.py
    ```
 
-The server will start on `http://localhost:5000`
+The server will start on `http://localhost:5001`
 
 ## API Documentation
 
@@ -80,7 +80,7 @@ Simple endpoint to verify server is running.
 
 ### Environment Variables
 - `OPENAI_API_KEY`: Required - Your OpenAI API key
-- `PORT`: Optional - Server port (default: 5000)
+- `PORT`: Optional - Server port (default: 5001)
 - `MAX_FILE_SIZE`: Optional - Max audio file size in MB (default: 25)
 - `ALLOWED_EXTENSIONS`: Optional - Comma-separated audio extensions
 
@@ -103,13 +103,13 @@ python app.py
 # Using curl
 curl -X POST \
   -F "audio=@test_audio.wav" \
-  http://localhost:5000/analyze-audio
+  http://localhost:5001/analyze-audio
 
 # Using Python requests
 import requests
 with open('test_audio.wav', 'rb') as f:
     response = requests.post(
-        'http://localhost:5000/analyze-audio',
+        'http://localhost:5001/analyze-audio',
         files={'audio': f}
     )
     print(response.json())
@@ -133,7 +133,7 @@ backend/
 ### Docker
 ```bash
 docker build -t room-temp-backend .
-docker run -e OPENAI_API_KEY=your_key -p 5000:5000 room-temp-backend
+docker run -e OPENAI_API_KEY=your_key -p 5001:5001 room-temp-backend
 ```
 
 ### Production Considerations
@@ -150,7 +150,7 @@ docker run -e OPENAI_API_KEY=your_key -p 5000:5000 room-temp-backend
 pip install gunicorn
 
 # Run with Gunicorn
-gunicorn --bind 0.0.0.0:5000 --workers 4 app:app
+gunicorn --bind 0.0.0.0:5001 --workers 4 app:app
 ```
 
 ## Error Handling
